@@ -16,24 +16,6 @@ function clearLog()
 	document.getElementById("logarea").value = "";
 }
 
-function checkEnv()
-{
-	var canvasObj = document.getElementById("showcase");
-	var gl = canvasObj.getContext("experimental-webgl");
-	if (!gl)
-	{
-		alert("wy: 你的浏览器不支持WebGL，请使用Chrome或者Firefox等支持WebGL的浏览器打开本页面!!");
-		appendLog("wy: Your browser doesnot support WebGL! Try again with chrome or firefox!!");
-		return;
-	}
-	appendLog("The max renderbuffer size your browser support: " + gl.getParameter(gl.MAX_RENDERBUFFER_SIZE));
-	appendLog("The max texture image units your browser support: " + gl.getParameter(gl.MAX_TEXTURE_IMAGE_UNITS));
-	appendLog("The max texture size your browser support: " + gl.getParameter(gl.MAX_TEXTURE_SIZE));
-	appendLog("The max cube map texture size your browser support: " + gl.getParameter(gl.MAX_CUBE_MAP_TEXTURE_SIZE));
-	appendLog("The max viewport dims your browser support: " + gl.getParameter(gl.MAX_VIEWPORT_DIMS)[0]);
-	appendLog("初始化完毕，如果不知道如何使用请点击右侧查看说明");
-}
-
 function bodyResize()
 {
 	var wrapperObj = document.getElementById("showcase-wrapper");
@@ -92,6 +74,24 @@ function attachHTML()
 		}
 		htmlWrapper.appendChild(scriptObj);
 	}
+
+	var imgTags = scriptWrapper.getElementsByTagName("img");
+	for(var index in imgTags)
+	{
+		var imgObj = document.createElement("img");
+		imgObj.setAttribute("style", "display:none;");
+		if(imgTags[index].id)
+			imgObj.id = imgTags[index].id;
+		if(imgTags[index].innerHTML)
+			imgObj.innerHTML = imgTags[index].innerHTML;
+		if(imgTags[index].src)
+		{
+			imgObj.src = imgTags[index].src;
+			imgObj.onload = function(){appendLog("加载" + this.src + "成功! 现在可以使用了～");};
+			appendLog("正在加载 " + imgTags[index].src + " 请稍等~");
+		}
+		htmlWrapper.appendChild(imgObj);
+	}
 }
 
 function runCodeInNewWindow()
@@ -111,6 +111,22 @@ function howToUse()
 	 logArea.scrollTop = logArea.scrollHeight;
 }
 
-
+function checkEnv()
+{
+	var canvasObj = document.getElementById("showcase");
+	var gl = canvasObj.getContext("experimental-webgl");
+	if (!gl)
+	{
+		alert("wy: 你的浏览器不支持WebGL，请使用Chrome或者Firefox等支持WebGL的浏览器打开本页面!!");
+		appendLog("wy: Your browser doesnot support WebGL! Try again with chrome or firefox!!");
+		return;
+	}
+	appendLog("The max renderbuffer size your browser support: " + gl.getParameter(gl.MAX_RENDERBUFFER_SIZE));
+	appendLog("The max texture image units your browser support: " + gl.getParameter(gl.MAX_TEXTURE_IMAGE_UNITS));
+	appendLog("The max texture size your browser support: " + gl.getParameter(gl.MAX_TEXTURE_SIZE));
+	appendLog("The max cube map texture size your browser support: " + gl.getParameter(gl.MAX_CUBE_MAP_TEXTURE_SIZE));
+	appendLog("The max viewport dims your browser support: " + gl.getParameter(gl.MAX_VIEWPORT_DIMS)[0]);
+	appendLog("初始化完毕，如果不知道如何使用请点击右侧查看说明");
+}
 
 
