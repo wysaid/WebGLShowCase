@@ -4,6 +4,12 @@ Date: 2014-3-26
 Blog: http://blog.wysaid.org/
 */
 
+function checkEnv()
+{
+	var canvasObj = document.getElementById("showcase");
+	var webgl = canvasObj.getContext("experimental-webgl");
+}
+
 function bodyResize()
 {
 	var wrapperObj = document.getElementById("showcase-wrapper");
@@ -16,7 +22,7 @@ function bodyResize()
 function runCode()
 {
 	var codeWrapper = document.getElementById("code-wrapper");
-	var codeArea = document.getElementById("codearea");
+	var codeArea = document.getElementById("jscodearea");
 	var htmlArea = document.getElementById("htmlarea");
 
 	codeWrapper.innerHTML = htmlarea.innerHTML;
@@ -31,8 +37,13 @@ function runCodeInNewWindow()
 
 }
 
-function maximizeCodeArea()
+function howToUse()
+{
+	var logArea = document.getElementById("logarea");
+//	logArea.innerHTML += 
+}
+
+function resizeCodeArea()
 {
 
 }
-
