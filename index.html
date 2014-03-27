@@ -19,7 +19,7 @@
 <img src="wy.png" id="testImage">
 <img src="test.png" id="testImage2">
 </textarea>
-<textarea id="jscodearea" style="position:absolute;width:50%;height:70%;left:0;top:30%;background-color:#ddd;">/*Javascript Code Here!*/
+<textarea id="jscodearea" style="position:absolute;width:50%;height:69%;left:0;top:31%;background-color:#ddd;">/*Javascript Code Here!*/
 /*可以在此处使用 appendLog(logString) 函数将一些信息输出到下方的log box中，如: appendLog("测试");clearLog() 函数可以用来清除log信息。interv为一个全局定时器变量，每次点击运行前将自动清除它*/
 
 var canvasObj = document.getElementById("showcase");
@@ -158,7 +158,7 @@ if(!!webgl)
 	interv = setInterval("gogogo()", 20);
 
 </textarea>
-<textarea id="vshcodearea" style="position:absolute;width:50%;height:50%;left:50%;top:0;background-color:#ddd;">/*Vertex Shader Code Here! e.g.*/
+<textarea id="vshcodearea" style="position:absolute;width:50%;height:49%;left:50%;top:0;background-color:#ddd;">/*Vertex Shader Code Here! e.g.*/
 attribute vec4 vPosition;
 uniform mat4 uMat;
 uniform float pointSize;
@@ -203,13 +203,14 @@ void main()
 </div>
 
 <div style="position:relative; width:100%;height:20%;margin:2% 0;border:groove;">
-<textarea id="logarea" style="position:relative;width:50%;height:100%;background-color:#ddd;" readonly="true">正在初始化...
+<textarea id="logarea" style="position:relative;width:50%;height:100%;background-color:#ddd;" readonly="true">本工具提供代码的短期/长期保存（目前未实现），您可以将自己的WebGL代码分享给您的朋友观看哦~
+正在初始化...
 </textarea>
 <div style="position:absolute;left:50%;top:0;height:100%;width:50%;border:groove;">
 <input type="button" value="附加HTML代码" title="Attach HTML Code" style="position:relative;width:20%;height:80%;margin:0.5%" onclick="attachHTML()"/>
 <input type="button" value="运行js代码" title="Run Code" style="position:relative;width:20%;height:80%;margin:0.5%" onclick="clearInterval(interv);runCode();"/>
 <input type="button" value="说明(Click Me)" title="Show How To Use" style="position:relative;width:20%;height:80%;margin:0.5%" onclick="howToUse()"/>
-<input type="button" value="新窗口运行代码" title="Run code in new single window" style="position:relative;width:25%;height:80%;margin:0.5%" onclick="runCodeInNewWindow()"/>
+<input type="button" value="上传代码" title="Upload your code" style="position:relative;width:25%;height:80%;margin:0.5%" onclick="runCodeInNewWindow()"/>
 </div>
 
 </div>
