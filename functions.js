@@ -85,7 +85,11 @@ function attachHTML()
 		if(scriptTags[index].innerHTML)
 			scriptObj.innerHTML = scriptTags[index].innerHTML;
 		if(scriptTags[index].src)
+		{
 			scriptObj.src = scriptTags[index].src;
+			scriptObj.onload = function(){appendLog("加载" + this.src + "成功! 现在可以使用了～");};
+			appendLog("正在加载 " + scriptTags[index].src + " 请稍等~");
+		}
 		htmlWrapper.appendChild(scriptObj);
 	}
 }
@@ -101,7 +105,7 @@ function howToUse()
 	logArea.value += "\nAuthor: wysaid\n" + 
 	 "请在右侧窗口内填写相应的代码，" +
 	 "其中HTML代码窗口可以填写script标签以引入第三方javascript库如three.js或者jquery等\n" +
-	 "HTML代码窗口中的代码通常需要提前附加，所以请在运行js代码之前点击附加HTML代码" + 
+	 "HTML代码窗口中的代码通常需要提前附加，所以请在运行js代码之前点击附加HTML代码\n" + 
 	 "写好代码以后点击运行代码可以查看结果，" + 
 	 "如果是直接在这上面写的话请记得及时保存下来哦，否则浏览器一刷新可能就没有了。\n";
 	 logArea.scrollTop = logArea.scrollHeight;
