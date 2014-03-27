@@ -9,11 +9,13 @@
 <div style="position:relative;width:97%;height:97%;margin:1%;">
 <h3>WebGL Show Case, WebGL在线快速编辑运行工具. 作者(Author): <a href="http://wysaid.org/" target="_blank">wysaid</a></h3>
 <div style="position:relative;width:100%;height:70%;border:groove;">
-<div id="showcase-wrapper" style="position:relative;width:50%;height:100%;min-width:30px;min-height:30px;" title="dsa">
+<div id="showcase-wrapper" style="position:relative;width:40%;height:100%;min-width:30px;min-height:30px;" title="dsa">
 <canvas id="showcase" style="position:absolute;left:0;top:0;background-color:#500"></canvas>
 </div>
-<div style="position:absolute;left:50%;top:0px;width:50%;height:100%;">
-<textarea id="htmlarea" style="position:absolute;width:50%;height:30%;left:0;top:0;background-color:#eee;">HTML Code Here! You can reference another js library or image.</textarea>
+<div style="position:absolute;left:40%;top:0px;width:60%;height:100%;">
+<textarea id="htmlarea" style="position:absolute;width:50%;height:30%;left:0;top:0;background-color:#eee;">HTML Code Here! You can reference another js library or image. Click attach button before you run your code if this box is used. e.g:
+<script type="text/javascript" src="test.js"></script>
+</textarea>
 <textarea id="jscodearea" style="position:absolute;width:50%;height:70%;left:0;top:30%;background-color:#ddd;">alert("Javascript Code Here!");
 
 var webgl = document.getElementById("showcase").getContext("experimental-webgl");
@@ -27,21 +29,26 @@ precision highp float;
 </div>
 
 <div style="position:relative; width:100%;height:20%;margin:2% 0;border:groove;">
-<textarea id="logarea" style="position:relative;width:50%;height:100%;background-color:#ddd;" readonly="true">正在初始化...</textarea>
+<textarea id="logarea" style="position:relative;width:50%;height:100%;background-color:#ddd;" readonly="true">正在初始化...
+</textarea>
 <div style="position:absolute;left:50%;top:0;height:100%;width:50%;border:groove;">
-<input type="button" value="运行代码" title="Run Code" style="position:relative;width:25%;height:80%;margin:1%" onclick="runCode()"/>
-<input type="button" value="查看说明" title="Maximize the code area" style="position:relative;width:25%;height:80%;margin:1%" onclick="howToUse()"/>
-<input type="button" value="新窗口运行代码" title="Run code in new single window" style="position:relative;width:30%;height:80%;margin:1%" onclick="runCodeInNewWindow()"/>
+<input type="button" value="附加HTML代码" title="Attach HTML Code" style="position:relative;width:20%;height:80%;margin:0.5%" onclick="attachHTML()"/>
+<input type="button" value="运行js代码" title="Run Code" style="position:relative;width:20%;height:80%;margin:0.5%" onclick="runCode()"/>
+<input type="button" value="说明(Click Me)" title="Show How To Use" style="position:relative;width:20%;height:80%;margin:0.5%" onclick="howToUse()"/>
+<input type="button" value="新窗口运行代码" title="Run code in new single window" style="position:relative;width:25%;height:80%;margin:0.5%" onclick="runCodeInNewWindow()"/>
 </div>
 
 </div>
 </div>
 
-<div style="display:none" id="code-wrapper">
+<div style="display:none;" id="code-wrapper">
+</div>
+
+<div style="display:none;" id="html-wrapper">
 </div>
 
 <div style="display:none">
-<--script type="text/javascript" src="http://tajs.qq.com/stats?sId=23413950" charset="UTF-8"--><--/script -->
+<script type="text/javascript" src="http://tajs.qq.com/stats?sId=23413950" charset="UTF-8"></script>
 </div>
 </body>
 </html>
