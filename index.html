@@ -9,16 +9,25 @@
 <div style="position:relative;width:97%;height:97%;margin:1%;">
 <h3>WebGL Show Case, WebGL在线快速编辑运行工具. 作者(Author): <a href="http://wysaid.org/" target="_blank">wysaid</a></h3>
 <div style="position:relative;width:100%;height:70%;border:groove;">
-<div id="showcase-wrapper" style="position:relative;width:40%;height:100%;min-width:30px;min-height:30px;" title="dsa">
+<div id="showcase-wrapper" style="position:relative;width:35%;height:100%;min-width:30px;min-height:30px;" title="dsa">
 <canvas id="showcase" style="position:absolute;left:0;top:0;background-color:#500"></canvas>
 </div>
-<div style="position:absolute;left:40%;top:0px;width:60%;height:100%;">
+<div style="position:absolute;left:35%;top:0px;width:65%;height:100%;">
 <textarea id="htmlarea" style="position:absolute;width:50%;height:30%;left:0;top:0;background-color:#eee;">HTML Code Here! You can reference another js library or image. Click attach button before you run your code if this box is used. e.g:
 <script type="text/javascript" src="test.js"></script>
 </textarea>
-<textarea id="jscodearea" style="position:absolute;width:50%;height:70%;left:0;top:30%;background-color:#ddd;">alert("Javascript Code Here!");
+<textarea id="jscodearea" style="position:absolute;width:50%;height:70%;left:0;top:30%;background-color:#ddd;">/*Javascript Code Here!*/
+/*可以在此处使用 appendLog(logString) 函数
+将一些信息输出到下方的log box中，如: appendLog("测试");*/
 
-var webgl = document.getElementById("showcase").getContext("experimental-webgl");
+var canvasObj = document.getElementById("showcase");
+var webgl = canvasObj.getContext("experimental-webgl");
+var vshCodeObj = document.getElementById("vshcodearea");
+var vertexShaderString = vshCodeObj.innerHTML;
+var fshCodeObj = document.getElementById("fshcodearea");
+var fragmentShaderString = fshCodeObj.innerHTML;
+webgl.clearColor(0, 0, 0, 1);
+webgl.clear(webgl.COLOR_BUFFER_BIT);
 </textarea>
 <textarea id="vshcodearea" style="position:absolute;width:50%;height:30%;left:50%;top:0;background-color:#ddd;">/*Vertex Shader Code Here!*/</textarea>
 <textarea id="fshcodearea" style="position:absolute;width:50%;height:70%;left:50%;top:30%;background-color:#ddd;">/*Fragment Shader Code Here!*/
