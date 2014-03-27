@@ -18,16 +18,22 @@
 </textarea>
 <textarea id="jscodearea" style="position:absolute;width:50%;height:70%;left:0;top:30%;background-color:#ddd;">/*Javascript Code Here!*/
 /*可以在此处使用 appendLog(logString) 函数
-将一些信息输出到下方的log box中，如: appendLog("测试");*/
+将一些信息输出到下方的log box中，如: appendLog("测试");
+clearLog() 函数可以用来清除log信息。*/
 
 var canvasObj = document.getElementById("showcase");
-var webgl = canvasObj.getContext("experimental-webgl");
 var vshCodeObj = document.getElementById("vshcodearea");
-var vertexShaderString = vshCodeObj.innerHTML;
 var fshCodeObj = document.getElementById("fshcodearea");
+
+var webgl = canvasObj.getContext("experimental-webgl");
+var vertexShaderString = vshCodeObj.innerHTML;
 var fragmentShaderString = fshCodeObj.innerHTML;
-webgl.clearColor(0, 0, 0, 1);
+
+webgl.viewport(0, 0, canvasObj.clientWidth, canvasObj.clientHeight);
+
+webgl.clearColor(1, 1, 0, 1);
 webgl.clear(webgl.COLOR_BUFFER_BIT);
+
 </textarea>
 <textarea id="vshcodearea" style="position:absolute;width:50%;height:30%;left:50%;top:0;background-color:#ddd;">/*Vertex Shader Code Here!*/</textarea>
 <textarea id="fshcodearea" style="position:absolute;width:50%;height:70%;left:50%;top:30%;background-color:#ddd;">/*Fragment Shader Code Here!*/

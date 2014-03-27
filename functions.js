@@ -11,6 +11,11 @@ function appendLog(logString)
 	logArea.scrollTop = logArea.scrollHeight;
 }
 
+function clearLog()
+{
+	document.getElementById("logarea").value = "";
+}
+
 function checkEnv()
 {
 	var canvasObj = document.getElementById("showcase");
