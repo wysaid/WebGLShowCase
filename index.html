@@ -1,0 +1,285 @@
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title>WebGL Show Case - by wysaid</title>
+    <script type="text/javascript" src="functions.js" charset="utf-8"></script>
+    <script type="text/javascript">var animFrameID = 0;</script>
+</head>
+<body onload="bodyResize();checkEnv();runCode();" onresize="bodyResize()">
+<div style="position:relative;width:97%;height:97%;margin:1%;">
+<h3>WebGL Show Case, WebGL在线快速编辑运行工具. 作者(Author): <a href="http://wysaid.org/" target="_blank">wysaid</a></h3>
+<div style="position:relative;width:100%;height:70%;border:groove;">
+<div id="showcase-wrapper" style="position:relative;width:35%;height:100%;min-width:30px;min-height:30px;" title="dsa">
+<canvas id="showcase" style="position:absolute;left:0;top:0;background-color:#500"></canvas>
+</div>
+<div style="position:absolute;left:35%;top:0px;width:65%;height:100%;">
+<textarea id="htmlarea" style="position:absolute;width:50%;height:30%;left:0;top:0;background-color:#eee;">HTML Code Here! 你可以在这里使用html标签形式引用别处的js脚本或者图片资源。由于点击run code时js是马上执行，所以想要js正确引用到这里的内容的话，请先点击附加html代码，等到左下角显示加载完毕之后再点击运行。当然，你也可以加上你的tracking code。上传代码之后默认直接加载此处内容。 e.g:
+<script type="text/javascript">appendLog("测试加载js");</script>
+<img src="wy.png" id="testImage">
+<img src="test.png" id="testImage2">
+</textarea>
+<textarea id="jscodearea" style="position:absolute;width:50%;height:69%;left:0;top:31%;background-color:#ddd;">/*Javascript Code Here!*/
+/*可以在此处使用 appendLog(logString) 函数将一些信息输出到下方的log box中，如: appendLog("测试");clearLog() 函数可以用来清除log信息。animFrameID为一个全局定时器变量，每次点击运行前将自动清除它*/
+
+var canvasObj = document.getElementById("showcase");
+var vshCodeObj = document.getElementById("vshcodearea");
+var fshCodeObj = document.getElementById("fshcodearea");
+
+var webgl = canvasObj.getContext("experimental-webgl");
+var vshaderSource = vshCodeObj.value;
+var fshaderSource = fshCodeObj.value;
+
+var vshObject = webgl.createShader(webgl.VERTEX_SHADER);
+var fshObject = webgl.createShader(webgl.FRAGMENT_SHADER);
+
+var initFailed = false;
+
+webgl.shaderSource(vshObject, vshaderSource);
+webgl.shaderSource(fshObject, fshaderSource);
+webgl.compileShader(vshObject);
+webgl.compileShader(fshObject);
+if(!webgl.getShaderParameter(vshObject, webgl.COMPILE_STATUS))
+{
+	appendLog(webgl.getShaderInfoLog(vshObject) + "in vertex shader");
+	initFailed = true;
+}
+if(!webgl.getShaderParameter(fshObject, webgl.COMPILE_STATUS))
+{
+	appendLog(webgl.getShaderInfoLog(fshObject) + "in fragment shader");
+	initFailed = true;
+}
+
+var programObject = webgl.createProgram();
+webgl.attachShader(programObject, vshObject);
+webgl.attachShader(programObject, fshObject);
+var v4PositionIndex = 0;
+webgl.bindAttribLocation(programObject, v4PositionIndex, "vPosition");
+webgl.linkProgram(programObject);
+if (!webgl.getProgramParameter(programObject, webgl.LINK_STATUS))
+{
+    uiAppendLog(webgl.getProgramInfoLog(programObject));
+    initFailed = true;
+}
+webgl.useProgram(programObject);
+
+var uniformPointSize = webgl.getUniformLocation(programObject, "pointSize");
+
+var uniformPointRadian = webgl.getUniformLocation(programObject, "pointRadian");
+
+var uniformColor = webgl.getUniformLocation(programObject, "vColor");
+
+function makeOrtho(left, right, bottom, top, nearZ, farZ)
+{
+	var ral = right + left;
+	var rsl = right - left;
+	var tsb = top - bottom;
+	var tab = top + bottom;
+	var fan = farZ + nearZ;
+	var fsn = farZ - nearZ;
+
+	return [2.0 / rsl, 0.0, 0.0, 0.0,
+		0.0, 2.0 / tsb, 0.0, 0.0,
+		0.0, 0.0, -2.0 / fsn, 0.0,
+		-ral / rsl, -tab / tsb, -fan / fsn, 1.0];
+}
+
+var mat4x4 = makeOrtho(0, canvasObj.clientWidth, 0, canvasObj.clientHeight, -1.0, 1.0);
+
+var uniformMat4 = webgl.getUniformLocation(programObject, "uMat");
+webgl.uniformMatrix4fv(uniformMat4, false, mat4x4);
+
+var imgObj = document.getElementById("testImage");
+var textureObject = webgl.createTexture();
+
+webgl.activeTexture(webgl.TEXTURE1);
+webgl.bindTexture(webgl.TEXTURE_2D, textureObject);
+webgl.texImage2D(webgl.TEXTURE_2D, 0, webgl.RGBA, webgl.RGBA, webgl.UNSIGNED_BYTE, imgObj);
+webgl.texParameteri(webgl.TEXTURE_2D, webgl.TEXTURE_MIN_FILTER, webgl.LINEAR);
+webgl.texParameteri(webgl.TEXTURE_2D, webgl.TEXTURE_MAG_FILTER, webgl.LINEAR);
+webgl.texParameteri(webgl.TEXTURE_2D, webgl.TEXTURE_WRAP_S, webgl.CLAMP_TO_EDGE);
+webgl.texParameteri(webgl.TEXTURE_2D, webgl.TEXTURE_WRAP_T, webgl.CLAMP_TO_EDGE);
+
+var uniformTexture = webgl.getUniformLocation(programObject, "imageTexture");
+webgl.uniform1i(uniformTexture, 1);
+
+var buffer = webgl.createBuffer();
+webgl.bindBuffer(webgl.ARRAY_BUFFER, buffer);
+webgl.enable(webgl.BLEND);
+webgl.blendFunc(webgl.SRC_COLOR, webgl.ONE_MINUS_SRC_ALPHA);
+
+var boundX = canvasObj.clientWidth;
+var boundY = canvasObj.clientHeight;
+var mouseX = boundX / 2.0;
+var mouseY = boundY / 2.0;
+var dx = Math.random() * 2.0 + 1.0;
+var dy = Math.random() * 2.0 + 1.0;
+var rad = 0.0;
+var size = 100.0;
+var dSize = 0.1;
+webgl.clearColor(0.0, 0.0, 0.0, 1.0);
+webgl.clear(webgl.COLOR_BUFFER_BIT);
+
+(function() {
+    var lastTime = 0;
+    var vendors = ['ms', 'moz', 'webkit', 'o'];
+    for(var x = 0; x < vendors.length && !window.requestAnimationFrame; ++x) {
+        window.requestAnimationFrame = window[vendors[x]+'RequestAnimationFrame'];
+        window.cancelAnimationFrame = window[vendors[x]+'CancelAnimationFrame']
+                                   || window[vendors[x]+'CancelRequestAnimationFrame'];
+    }
+ 
+    if (!window.requestAnimationFrame)
+        window.requestAnimationFrame = function(callback, element) {
+            var currTime = new Date().getTime();
+            var timeToCall = Math.max(0, 16 - (currTime - lastTime));
+            var id = window.setTimeout(function() { callback(currTime + timeToCall); },
+              timeToCall);
+            lastTime = currTime + timeToCall;
+            return id;
+        };
+ 
+    if (!window.cancelAnimationFrame)
+        window.cancelAnimationFrame = function(id) {
+            clearTimeout(id);
+        };
+}());
+
+function gogogo()
+{
+	animFrameID = window.requestAnimationFrame(gogogo);
+	webgl.clearColor(0.0, 0.0, 0.0, 1.0);
+	webgl.clear(webgl.COLOR_BUFFER_BIT);
+
+	webgl.uniform1f(uniformPointSize, size);
+	webgl.uniform1f(uniformPointRadian, rad);
+
+	var verticesData = [mouseX, mouseY];//[canvasObj.clientWidth / 2.0, canvasObj.clientHeight / 2.0];
+
+	webgl.bufferData(webgl.ARRAY_BUFFER, new Float32Array(verticesData), webgl.STATIC_DRAW);
+	webgl.enableVertexAttribArray(v4PositionIndex);
+	webgl.vertexAttribPointer(v4PositionIndex, 2, webgl.FLOAT, false, 0, 0);
+	webgl.uniform4f(uniformColor, 1.0, 1.0, 1.0, 1.0);
+	webgl.viewport(0, 0, canvasObj.clientWidth, canvasObj.clientHeight);
+	webgl.drawArrays(webgl.POINTS, 0, 1);
+
+	mouseX += dx;
+	mouseY += dy;
+	if(mouseX < 0.0 || mouseX > boundX)
+	{
+		dx = -dx;
+		mouseX += dx;
+	}
+	if(mouseY < 0.0 || mouseY > boundY)
+	{
+		dy = -dy;
+		mouseY += dy;
+	}
+	rad += 0.02;
+	if(rad > 1e10) rad = 0.0;
+	size += dSize;
+	if(size < 80.0 || size > 150)
+	{
+		dSize = -dSize;
+		size += dSize;
+	}
+}
+
+cancelAnimationFrame(animFrameID);
+
+if(!initFailed)
+	gogogo();
+
+</textarea>
+<textarea id="vshcodearea" style="position:absolute;width:50%;height:49%;left:50%;top:0;background-color:#ddd;">/*Vertex Shader Code Here! e.g.*/
+attribute vec4 vPosition;
+uniform mat4 uMat;
+uniform float pointSize;
+uniform float pointRadian;
+varying mat2 mRot;
+varying float pointScale;
+
+const vec2 corner = vec2(0.5, 0.5);
+
+mat2 makeRotation(float rad)
+{
+	float cosRad = cos(rad);
+	float sinRad = sin(rad);
+	return mat2(cosRad, sinRad, -sinRad, cosRad);
+}
+
+void main()
+{
+	mRot = makeRotation(pointRadian);
+	//pointScale = 1.5;//length(corner * mRot) / length(corner);
+	vec2 v2 = abs(corner * mRot);
+	pointScale = max(v2.x, v2.y) / 0.5;
+	gl_PointSize = pointSize * pointScale;
+	gl_Position = (uMat * vPosition);
+}
+</textarea>
+<textarea id="fshcodearea" style="position:absolute;width:50%;height:50%;left:50%;top:50%;background-color:#ddd;">/*Fragment Shader Code Here! e.g.*/
+precision highp float;
+uniform sampler2D imageTexture;
+uniform vec4 vColor;
+varying mat2 mRot;
+varying float pointScale;
+
+void main()
+{
+	gl_FragColor = vColor * texture2D(imageTexture, (gl_PointCoord - 0.5) * pointScale * mRot + 0.5);
+	//gl_FragColor.rgb *= gl_FragColor.a; /*取消此句注释可以隐藏边框*/
+}
+</textarea>
+</div>
+
+</div>
+
+<div style="position:relative; width:100%;height:20%;margin:2% 0;border:groove;">
+<textarea id="logarea" style="position:relative;width:50%;height:100%;background-color:#ddd;" readonly="true">本工具提供代码的短期/长期保存（目前未实现），您可以将自己的WebGL代码分享给您的朋友观看哦~
+正在初始化...
+</textarea>
+<div style="position:absolute;left:50%;top:0;height:100%;width:50%;border:groove;">
+<input type="button" value="附加HTML代码" title="Attach HTML Code" style="position:relative;width:20%;height:80%;margin:0.5%" onclick="attachHTML()"/>
+<input type="button" value="运行js代码" title="Run Code" style="position:relative;width:20%;height:80%;margin:0.5%" onclick="runCode();"/>
+<input type="button" value="说明(Click Me)" title="Show How To Use" style="position:relative;width:20%;height:80%;margin:0.5%" onclick="howToUse()"/>
+<input type="button" value="上传代码" title="Upload your code" style="position:relative;width:25%;height:80%;margin:0.5%" onclick="runCodeInNewWindow()"/>
+</div>
+
+</div>
+</div>
+
+<div style="display:none;" id="code-wrapper">
+</div>
+
+<div style="display:none;" id="html-wrapper">
+<img src="wy.png" id="testImage">
+<img src="test.png" id="testImage2">
+</div>
+
+<div style="display:none;" id="trackingCodes">
+<script type="text/javascript">
+var codeArea = document.getElementById("trackingCodes");
+var tagTencent = document.createElement("script");
+tagTencent.setAttribute("type", "text/javascript");
+tagTencent.src = "http://tajs.qq.com/stats?sId=23413950";
+tagTencent.charset = "UTF-8";
+codeArea.appendChild(tagTencent);
+</script>
+
+<script type="text/javascript">
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-41296769-1', 'wysaid.org');
+  ga('send', 'pageview');
+</script>
+<script type="text/javascript">
+var _bdhmProtocol = (("https:" == document.location.protocol) ? " https://" : " http://");
+document.write(unescape("%3Cscript src='" + _bdhmProtocol + "hm.baidu.com/h.js%3Fb1b964c80dff2a1af1bb8b1ee3e9a7d1' type='text/javascript'%3E%3C/script%3E"));
+</script>
+</div>
+</body>
+</html>
