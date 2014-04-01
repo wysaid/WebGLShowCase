@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <title>WebGL Show Case - by wysaid</title>
     <script type="text/javascript" src="functions.js" charset="utf-8"></script>
-    <script type="text/javascript">var interv</script>
+    <script type="text/javascript">var animFrameID = 0;</script>
 </head>
 <body onload="bodyResize();checkEnv();runCode();" onresize="bodyResize()">
 <div style="position:relative;width:97%;height:97%;margin:1%;">
@@ -20,7 +20,7 @@
 <img src="test.png" id="testImage2">
 </textarea>
 <textarea id="jscodearea" style="position:absolute;width:50%;height:69%;left:0;top:31%;background-color:#ddd;">/*Javascript Code Here!*/
-/*可以在此处使用 appendLog(logString) 函数将一些信息输出到下方的log box中，如: appendLog("测试");clearLog() 函数可以用来清除log信息。interv为一个全局定时器变量，每次点击运行前将自动清除它*/
+/*可以在此处使用 appendLog(logString) 函数将一些信息输出到下方的log box中，如: appendLog("测试");clearLog() 函数可以用来清除log信息。animFrameID为一个全局定时器变量，每次点击运行前将自动清除它*/
 
 var canvasObj = document.getElementById("showcase");
 var vshCodeObj = document.getElementById("vshcodearea");
@@ -33,6 +33,8 @@ var fshaderSource = fshCodeObj.value;
 var vshObject = webgl.createShader(webgl.VERTEX_SHADER);
 var fshObject = webgl.createShader(webgl.FRAGMENT_SHADER);
 
+var initFailed = false;
+
 webgl.shaderSource(vshObject, vshaderSource);
 webgl.shaderSource(fshObject, fshaderSource);
 webgl.compileShader(vshObject);
@@ -40,10 +42,12 @@ webgl.compileShader(fshObject);
 if(!webgl.getShaderParameter(vshObject, webgl.COMPILE_STATUS))
 {
 	appendLog(webgl.getShaderInfoLog(vshObject) + "in vertex shader");
+	initFailed = true;
 }
 if(!webgl.getShaderParameter(fshObject, webgl.COMPILE_STATUS))
 {
 	appendLog(webgl.getShaderInfoLog(fshObject) + "in fragment shader");
+	initFailed = true;
 }
 
 var programObject = webgl.createProgram();
@@ -55,6 +59,7 @@ webgl.linkProgram(programObject);
 if (!webgl.getProgramParameter(programObject, webgl.LINK_STATUS))
 {
     uiAppendLog(webgl.getProgramInfoLog(programObject));
+    initFailed = true;
 }
 webgl.useProgram(programObject);
 
@@ -115,8 +120,34 @@ var dSize = 0.1;
 webgl.clearColor(0.0, 0.0, 0.0, 1.0);
 webgl.clear(webgl.COLOR_BUFFER_BIT);
 
+(function() {
+    var lastTime = 0;
+    var vendors = ['ms', 'moz', 'webkit', 'o'];
+    for(var x = 0; x < vendors.length && !window.requestAnimationFrame; ++x) {
+        window.requestAnimationFrame = window[vendors[x]+'RequestAnimationFrame'];
+        window.cancelAnimationFrame = window[vendors[x]+'CancelAnimationFrame']
+                                   || window[vendors[x]+'CancelRequestAnimationFrame'];
+    }
+ 
+    if (!window.requestAnimationFrame)
+        window.requestAnimationFrame = function(callback, element) {
+            var currTime = new Date().getTime();
+            var timeToCall = Math.max(0, 16 - (currTime - lastTime));
+            var id = window.setTimeout(function() { callback(currTime + timeToCall); },
+              timeToCall);
+            lastTime = currTime + timeToCall;
+            return id;
+        };
+ 
+    if (!window.cancelAnimationFrame)
+        window.cancelAnimationFrame = function(id) {
+            clearTimeout(id);
+        };
+}());
+
 function gogogo()
 {
+	animFrameID = window.requestAnimationFrame(gogogo);
 	webgl.clearColor(0.0, 0.0, 0.0, 1.0);
 	webgl.clear(webgl.COLOR_BUFFER_BIT);
 
@@ -154,8 +185,10 @@ function gogogo()
 	}
 }
 
-if(!!webgl)
-	interv = setInterval("gogogo()", 20);
+cancelAnimationFrame(animFrameID);
+
+if(!initFailed)
+	gogogo();
 
 </textarea>
 <textarea id="vshcodearea" style="position:absolute;width:50%;height:49%;left:50%;top:0;background-color:#ddd;">/*Vertex Shader Code Here! e.g.*/
@@ -208,7 +241,7 @@ void main()
 </textarea>
 <div style="position:absolute;left:50%;top:0;height:100%;width:50%;border:groove;">
 <input type="button" value="附加HTML代码" title="Attach HTML Code" style="position:relative;width:20%;height:80%;margin:0.5%" onclick="attachHTML()"/>
-<input type="button" value="运行js代码" title="Run Code" style="position:relative;width:20%;height:80%;margin:0.5%" onclick="clearInterval(interv);runCode();"/>
+<input type="button" value="运行js代码" title="Run Code" style="position:relative;width:20%;height:80%;margin:0.5%" onclick="runCode();"/>
 <input type="button" value="说明(Click Me)" title="Show How To Use" style="position:relative;width:20%;height:80%;margin:0.5%" onclick="howToUse()"/>
 <input type="button" value="上传代码" title="Upload your code" style="position:relative;width:25%;height:80%;margin:0.5%" onclick="runCodeInNewWindow()"/>
 </div>
